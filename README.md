@@ -21,15 +21,17 @@ module "ec2-backup" {
 ## Argument Reference ##
 The following module level arguments are supported.
 
-* additional_roles - (Optional) List of additional roles that will be included in backups
+* **additional_roles** - (Optional) List of additional roles that will be included in backups
 
-* run_at_expression - (Optional) Expression used by cron job to determine when backup will run.  Defaults to ``cron(00 03 ? * * *)``, which will run backup every day at 3am.  For more details, see AWS documentation.  (https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html)
+* **run_at_expression** - (Optional) Expression used by cron job to determine when backup will run.  Defaults to ``cron(00 03 ? * * *)``, which will run backup every day at 3am.  For more details, see AWS documentation.  (https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html)
 
-* tags - (Optional) The tags assigned to all related resources that can be tagged.
+  ** Note: If exxpression is left blank, no cloudwatch configurations will be made.
+
+* **tags** - (Optional) The tags assigned to all related resources that can be tagged.
 
 
 ## Outputs ##
 
-* backup_role_arn - ARN for the newly created backup role
+* **backup_role_arn** - ARN for the newly created backup role
 
-* backup_role_name - Name of the backup role
+* **backup_role_name** - Name of the backup role
