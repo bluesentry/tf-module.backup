@@ -23,9 +23,7 @@ The following module level arguments are supported.
 
 * **additional_roles** - (Optional) List of additional roles that will be included in backups
 
-* **run_at_expression** - (Optional) Expression used by cron job to determine when backup will run.  Defaults to ``cron(00 03 ? * * *)``, which will run backup every day at 3am.  For more details, see AWS documentation.  (https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html)
-
-  ** Note: If exxpression is left blank, no cloudwatch configurations will be made.
+* **run_at_expression** - (Optional) Expression used by cron job to determine when backup will run.  Defaults to ``cron(00 03 ? * * *)``, which will run backup every day at 3am.  If expression is left blank, no cloudwatch configurations will be made.  For more details, see AWS documentation.  (https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html)
 
 * **tags** - (Optional) The tags assigned to all related resources that can be tagged.
 
