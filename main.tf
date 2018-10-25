@@ -135,15 +135,8 @@ resource "aws_cloudwatch_event_target" "win" {
 
 
 // Lambda - linux
-data "template_file" "linux-backup" {
-  template = "${file("${path.module}/linux-lambda/linux-lambda.py")}"
-  vars {
-    PROFILE_ARN = "${join(",", local.arns)}"
-  }
-}
-
 data "archive_file" "linux-backup" {
-  source_content = "${data.template_file.linux-backup.rendered}"
+  source_content = "${file("${path.module}/linux-lambda/linux-lambda.py")}"
   source_content_filename = "linux-lambda.py"
   output_path = "linux-backup-lambda.zip"
   type        = "zip"
