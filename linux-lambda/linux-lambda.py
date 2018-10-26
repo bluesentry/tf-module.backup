@@ -16,9 +16,6 @@
 import json,boto3
 from datetime import datetime, timedelta
 
-ACCESS_KEY_ID=''
-SECRET_KEY_ID=''
-REGION="us-east-1"
 DO_NOT_BACKUP_EC2_VOL_FLAG = "BsiDoNotBackup"
 SNAPSHOT_DESCRIPTION_PREFIX = "Created by BSIBackup - "
 SKIP_WINDOWS=True
@@ -28,25 +25,12 @@ def main():
     start_time = datetime.utcnow()
     print("Script version %s started at %s\n" % \
           (VERSION, start_time.strftime("%Y/%m/%d %H:%M:%S UTC")))
-    ec2 = create_boto_resource("ec2",ACCESS_KEY_ID,SECRET_KEY_ID,REGION)
+    ec2 = boto3.resource("ec2")
     instances_to_backup = ec2.instances.all()
     volumes_to_backup = get_volumes_to_backup(instances_to_backup)
     create_snapshots(ec2,volumes_to_backup)
     print("Script finished at %s\n" % \
           datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S UTC"))
-
-def create_boto_resource(resource_name,access_key_id,secret_key_id,region):
-    resource=None
-    if len(access_key_id) > 0:
-        resource = boto3.resource(
-            resource_name,
-            aws_access_key_id = access_key_id,
-            aws_secret_access_key = secret_key_id,
-            region_name=region
-        )
-    else:
-        resource = boto3.resource(resource_name,region_name=region)
-    return resource
 
 def get_volumes_to_backup(instances):
     volumes = list()
