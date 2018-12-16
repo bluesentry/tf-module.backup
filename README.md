@@ -23,7 +23,7 @@ The following module level arguments are supported.
 
 * **additional_roles** - (Optional) List of additional roles that will be included in backups
 
-* **include** - (Optional) If set to false, no resources will be added. Defaults to `true`
+* **include** - (Optional) If set to false, no resources will be added. Defaults to `true`.  See [details section](#include-argument-details)
 
 * **run_at_expression** - (Optional) Expression used by cron job to determine when backup will run.  Defaults to ``cron(00 03 ? * * *)``, which will run backup every day at 3am.  If expression is left blank, no cloudwatch configurations will be made.  For more details, see AWS documentation.  (https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html)
 
@@ -35,6 +35,7 @@ The following module level arguments are supported.
 * **backup_role_arn** - ARN for the newly created backup role
 
 * **backup_role_name** - Name of the backup role
+
 
 
 ## Include Argument Details ##
