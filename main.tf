@@ -1,5 +1,6 @@
 resource "aws_iam_role" "BsiBackup" {
-  name = "BsiBackup"
+  count = "${var.include == "true" ? 1 : 0}"
+  name  = "BsiBackup"
 
   assume_role_policy = <<EOF
 {
@@ -22,12 +23,14 @@ EOF
 }
 
 resource "aws_iam_instance_profile" "BsiBackup" {
-  name = "BsiBackup"
-  role = "${aws_iam_role.BsiBackup.name}"
+  count = "${var.include == "true" ? 1 : 0}"
+  name  = "BsiBackup"
+  role  = "${aws_iam_role.BsiBackup.name}"
 }
 
 resource "aws_iam_policy" "BsiBackuppolicy" {
-  name = "ec2-access-policy"
+  count  = "${var.include == "true" ? 1 : 0}"
+  name   = "ec2-access-policy"
   policy = "${data.aws_iam_policy_document.BsiBackuppolicyDoc.json}"
 }
 data "aws_iam_policy_document" "BsiBackuppolicyDoc"{
@@ -54,12 +57,14 @@ data "aws_iam_policy_document" "BsiBackuppolicyDoc"{
   }
 }
 resource "aws_iam_role_policy_attachment" "bsiaccess" {
+  count      = "${var.include == "true" ? 1 : 0}"
   role       = "${aws_iam_role.BsiBackup.name}"
   policy_arn = "${aws_iam_policy.BsiBackuppolicy.arn}"
 }
 
 
 resource "aws_iam_role_policy_attachment" "ec2ssm" {
+  count      = "${var.include == "true" ? 1 : 0}"
   role       = "${aws_iam_role.BsiBackup.name}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
 }
@@ -77,7 +82,7 @@ resource "aws_iam_role_policy_attachment" "ec2ssm_extra" {
 }
 
 locals {
-  arns = "${concat(list(aws_iam_role.BsiBackup.arn),var.additional_roles)}"
+  arns = "${concat(aws_iam_role.BsiBackup.*.arn, var.additional_roles)}"
 }
 
 
@@ -97,6 +102,7 @@ data "archive_file" "win-backup" {
 }
 
 resource "aws_lambda_function" "win-backup" {
+  count            = "${var.include == "true" ? 1 : 0}"
   function_name    = "bsi-win-backup"
   role             = "${aws_iam_role.BsiBackup.arn}"
   handler          = "win_lambda.lambda_handler"
@@ -108,7 +114,7 @@ resource "aws_lambda_function" "win-backup" {
 }
 
 resource "aws_lambda_permission" "win" {
-  count = "${var.run_at_expression != "" ? 1 : 0}"
+  count = "${(var.run_at_expression != "" && var.include == "true") ? 1 : 0}"
 
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
@@ -118,7 +124,7 @@ resource "aws_lambda_permission" "win" {
 }
 
 resource "aws_cloudwatch_event_rule" "win" {
-  count = "${var.run_at_expression != "" ? 1 : 0}"
+  count = "${(var.run_at_expression != "" && var.include == "true") ? 1 : 0}"
 
   name                = "${aws_lambda_function.win-backup.function_name}_main_cron"
   description         = "${aws_lambda_function.win-backup.function_name}_main_cron"
@@ -126,7 +132,7 @@ resource "aws_cloudwatch_event_rule" "win" {
 }
 
 resource "aws_cloudwatch_event_target" "win" {
-  count = "${var.run_at_expression != "" ? 1 : 0}"
+  count = "${(var.run_at_expression != "" && var.include == "true") ? 1 : 0}"
 
   rule      = "${aws_cloudwatch_event_rule.win.name}"
   target_id = "${aws_lambda_function.win-backup.function_name}"
@@ -143,6 +149,7 @@ data "archive_file" "linux-backup" {
 }
 
 resource "aws_lambda_function" "linux-backup" {
+  count            = "${var.include == "true" ? 1 : 0}"
   function_name    = "bsi-linux-backup"
   role             = "${aws_iam_role.BsiBackup.arn}"
   handler          = "linux-lambda.lambda_handler"
@@ -154,7 +161,7 @@ resource "aws_lambda_function" "linux-backup" {
 }
 
 resource "aws_lambda_permission" "linux" {
-  count = "${var.run_at_expression != "" ? 1 : 0}"
+  count = "${(var.run_at_expression != "" && var.include == "true") ? 1 : 0}"
 
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
@@ -164,7 +171,7 @@ resource "aws_lambda_permission" "linux" {
 }
 
 resource "aws_cloudwatch_event_rule" "linux" {
-  count = "${var.run_at_expression != "" ? 1 : 0}"
+  count = "${(var.run_at_expression != "" && var.include == "true") ? 1 : 0}"
 
   name                = "${aws_lambda_function.linux-backup.function_name}_main_cron"
   description         = "${aws_lambda_function.linux-backup.function_name}_main_cron"
@@ -172,7 +179,7 @@ resource "aws_cloudwatch_event_rule" "linux" {
 }
 
 resource "aws_cloudwatch_event_target" "linux" {
-  count = "${var.run_at_expression != "" ? 1 : 0}"
+  count = "${(var.run_at_expression != "" && var.include == "true") ? 1 : 0}"
 
   rule      = "${aws_cloudwatch_event_rule.linux.name}"
   target_id = "${aws_lambda_function.linux-backup.function_name}"
