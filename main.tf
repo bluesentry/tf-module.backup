@@ -69,6 +69,18 @@ resource "aws_iam_role_policy_attachment" "ec2ssm" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
 }
 
+resource "aws_iam_role_policy_attachment" "ec2fullaccess" {
+  count      = "${var.include == "true" ? 1 : 0}"
+  role       = "${aws_iam_role.BsiBackup.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "ssmfullaccess" {
+  count      = "${var.include == "true" ? 1 : 0}"
+  policy_arn = "${aws_iam_role.BsiBackup.name}"
+  role       = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+}
+
 resource "aws_iam_role_policy_attachment" "bsiaccess_extra" {
   count ="${length(var.additional_roles)}"
   policy_arn = "${aws_iam_policy.BsiBackuppolicy.arn}"
@@ -82,7 +94,7 @@ resource "aws_iam_role_policy_attachment" "ec2ssm_extra" {
 }
 
 locals {
-  arns = "${concat(aws_iam_role.BsiBackup.*.arn, var.additional_roles)}"
+  arns = "${concat(aws_iam_instance_profile.BsiBackup.*.arn, var.additional_roles)}"
 }
 
 

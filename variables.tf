@@ -6,7 +6,7 @@ variable "include" {
 
 variable "additional_roles" {
   type        = "list"
-  description = "Additional instance role ARN's to include in backups"
+  description = "Additional instance role profile ARN's to include in backups"
   default     = []
 }
 
