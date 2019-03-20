@@ -4,8 +4,7 @@ Terraform module for setup of instance snapshots.
 ## Usage ##
 ```hcl-terraform
 module "ec2-backup" {
-  source            = "git@github.com:bluesentry/tf-module.backup.git"
-  version           = "v1.0.0"
+  source            = "git@github.com:bluesentry/tf-module.backup.git?ref=v1.0.3"
   run_at_expression = "cron(30 02 ? * * *)"
   tags              = "${local.tags}"
 }
@@ -16,6 +15,7 @@ module "ec2-backup" {
 * BSIBackup profile instance & associated role and policy
 * Lambda functions (windows and linux)
 * Cloudwatch rule and target for cron job that will trigger backup
+* BsiHealthCheck cross account role (if enabled)
 
 
 ## Argument Reference ##
@@ -24,6 +24,8 @@ The following module level arguments are supported.
 * **additional_roles** - (Optional) List of additional roles that will be included in backups
 
 * **include** - (Optional) If set to false, no resources will be added. Defaults to `true`.  See [details section](#include-argument-details)
+
+* **enable_msp_healthcheck_role** - (Optional) If true, bsi_healthcheck cross account role will be provisioned.  Defaults to `true`.
 
 * **run_at_expression** - (Optional) Expression used by cron job to determine when backup will run.  Defaults to ``cron(00 03 ? * * *)``, which will run backup every day at 3am.  If expression is left blank, no cloudwatch configurations will be made.  For more details, see AWS documentation.  (https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html)
 
@@ -46,7 +48,7 @@ Example Scenario:  Multiple workspaces exist in a single AWS account.  The backu
 
 ```hcl-terraform
 module "backup" {
-  source            = "git@github.com:bluesentry/tf-module.backup.git?ref=v1.0.2"
+  source            = "git@github.com:bluesentry/tf-module.backup.git?ref=v1.0.3"
   run_at_expression = "cron(00 03 ? * * *)"
   include           = "${terraform.workspace == "dev" ? "true" : "false"}"
   tags              = "${local.tags}"
