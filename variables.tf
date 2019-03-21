@@ -10,6 +10,11 @@ variable "additional_roles" {
   default     = []
 }
 
+variable "enable_msp_healthcheck_role" {
+  description = "If true, the bsi_healthcheck cross account role will be provisioned"
+  default     = "true"
+}
+
 variable "run_at_expression" {
   description = "Interval used for running backup as a cron expression"
   default     = "cron(00 03 ? * * *)"
