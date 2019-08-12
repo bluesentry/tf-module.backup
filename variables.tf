@@ -20,6 +20,11 @@ variable "run_at_expression" {
   default     = "cron(00 03 ? * * *)"
 }
 
+variable "run_after_expression" {
+  description = "Interval used for running backup as a cron expression"
+  default     = "cron(00 06 ? * * *)"
+}
+
 variable "tags" {
   type    = "map"
   default = {}

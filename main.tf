@@ -185,3 +185,49 @@ resource "aws_cloudwatch_event_target" "linux" {
   target_id = "${aws_lambda_function.linux-backup.function_name}"
   arn       = "${aws_lambda_function.linux-backup.arn}"
 }
+
+
+// Lambda - snapshot cleanup
+data "archive_file" "ebs-cleanup" {
+  source_content = "${file("${path.module}/snapshot-cleanup/snapshot-cleanup.py")}"
+  source_content_filename = "snapshot-cleanup.py"
+  output_path = "snapshot-cleanup-lambda.zip"
+  type        = "zip"
+}
+
+resource "aws_lambda_function" "ebs-cleanup" {
+  count            = "${var.include == "true" ? 1 : 0}"
+  function_name    = "bsi-linux-backup"
+  role             = "${aws_iam_role.BsiBackup.arn}"
+  handler          = "snapshot-cleanup.lambda_handler"
+  runtime          = "python2.7"
+  timeout          = 300
+  filename         = "${data.archive_file.ebs-cleanup.output_path}"
+  source_code_hash = "${data.archive_file.ebs-cleanup.output_base64sha256}"
+  tags             = "${var.tags}"
+}
+
+resource "aws_lambda_permission" "ebs-cleanup" {
+  count = "${(var.run_after_expression != "" && var.include == "true") ? 1 : 0}"
+
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.ebs-cleanup.function_name}"
+  principal     = "events.amazonaws.com"
+  source_arn    = "${aws_cloudwatch_event_rule.snapshot-cleanup.arn}"
+}
+
+resource "aws_cloudwatch_event_rule" "snapshot-cleanup" {
+  count = "${(var.run_at_expression != "" && var.include == "true") ? 1 : 0}"
+
+  name                = "${aws_lambda_function.ebs-cleanup.function_name}_main_cron"
+  description         = "${aws_lambda_function.ebs-cleanup.function_name}_main_cron"
+  schedule_expression = "${var.run_after_expression}"
+}
+
+resource "aws_cloudwatch_event_target" "ebs-cleanup" {
+  count = "${(var.run_after_expression != "" && var.include == "true") ? 1 : 0}"
+
+  rule      = "${aws_cloudwatch_event_rule.snapshot-cleanup.name}"
+  target_id = "${aws_lambda_function.ebs-cleanup.function_name}"
+  arn       = "${aws_lambda_function.ebs-cleanup.arn}"
