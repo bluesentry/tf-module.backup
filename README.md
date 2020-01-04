@@ -4,11 +4,16 @@ Terraform module for setup of instance snapshots.
 ## Usage ##
 ```hcl-terraform
 module "ec2-backup" {
-  source            = "git@github.com:bluesentry/tf-module.backup.git?ref=v1.0.3"
+  source            = "git@github.com:bluesentry/tf-module.backup.git?ref=v2.0.0"
   run_at_expression = "cron(30 02 ? * * *)"
-  tags              = "${local.tags}"
+  tags              = local.tags
 }
 ```
+
+## Terraform versions ##
+Terraform 0.12. Pin module version to ~> v2.0. Code changes are handled in `master` branch
+
+Terraform 0.11. Pin module version to ~> v1.0. Code changes are handled in `v11` branch
 
 ## What's created? ##
 
@@ -50,7 +55,7 @@ Example Scenario:  Multiple workspaces exist in a single AWS account.  The backu
 module "backup" {
   source            = "git@github.com:bluesentry/tf-module.backup.git?ref=v1.0.3"
   run_at_expression = "cron(00 03 ? * * *)"
-  include           = "${terraform.workspace == "dev" ? "true" : "false"}"
-  tags              = "${local.tags}"
+  include           = terraform.workspace == "dev" ? "true" : "false"
+  tags              = local.tags
 }
 ```
