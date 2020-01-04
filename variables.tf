@@ -1,7 +1,7 @@
 
 
 variable "additional_roles" {
-  type        = "list"
+  type        = list(string)
   description = "Additional instance role ARN's to include in backups"
   default     = []
 }
