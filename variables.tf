@@ -1,9 +1,18 @@
 
+variable "include" {
+  description = "Include in install.  If set to false related resources will not be installed."
+  default = "true"
+}
 
 variable "additional_roles" {
   type        = list(string)
   description = "Additional instance role ARN's to include in backups"
   default     = []
+}
+
+variable "enable_msp_healthcheck_role" {
+  description = "If true, the bsi_healthcheck cross account role will be provisioned"
+  default     = "true"
 }
 
 variable "run_at_expression" {
