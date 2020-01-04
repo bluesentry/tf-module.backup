@@ -21,6 +21,6 @@ variable "run_at_expression" {
 }
 
 variable "tags" {
-  type    = "map"
+  type    = map(string)
   default = {}
 }
