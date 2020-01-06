@@ -126,8 +126,8 @@ resource "aws_lambda_permission" "win" {
 resource "aws_cloudwatch_event_rule" "win" {
   count = (var.run_at_expression != "" && var.include == "true") ? 1 : 0
 
-  name                = "${aws_lambda_function.win-backup.function_name}_main_cron"
-  description         = "${aws_lambda_function.win-backup.function_name}_main_cron"
+  name                = "${aws_lambda_function.win-backup.*.function_name}_main_cron"
+  description         = "${aws_lambda_function.win-backup.*.function_name}_main_cron"
   schedule_expression = var.run_at_expression
 }
 
@@ -173,8 +173,8 @@ resource "aws_lambda_permission" "linux" {
 resource "aws_cloudwatch_event_rule" "linux" {
   count = (var.run_at_expression != "" && var.include == "true") ? 1 : 0
 
-  name                = "${aws_lambda_function.linux-backup.function_name}_main_cron"
-  description         = "${aws_lambda_function.linux-backup.function_name}_main_cron"
+  name                = "${aws_lambda_function.linux-backup.*.function_name}_main_cron"
+  description         = "${aws_lambda_function.linux-backup.*.function_name}_main_cron"
   schedule_expression = var.run_at_expression
 }
 
