@@ -25,7 +25,7 @@ EOF
 resource "aws_iam_instance_profile" "BsiBackup" {
   count = var.include == "true" ? 1 : 0
   name  = "BsiBackup"
-  role  = aws_iam_role.BsiBackup.name
+  role  = aws_iam_role.BsiBackup.*.name
 }
 
 resource "aws_iam_policy" "BsiBackuppolicy" {
@@ -58,20 +58,20 @@ data "aws_iam_policy_document" "BsiBackuppolicyDoc"{
 }
 resource "aws_iam_role_policy_attachment" "bsiaccess" {
   count      = var.include == "true" ? 1 : 0
-  role       = aws_iam_role.BsiBackup.name
-  policy_arn = aws_iam_policy.BsiBackuppolicy.arn
+  role       = aws_iam_role.BsiBackup.*.name
+  policy_arn = aws_iam_policy.BsiBackuppolicy.*.arn
 }
 
 
 resource "aws_iam_role_policy_attachment" "ec2ssm" {
   count      = var.include == "true" ? 1 : 0
-  role       = aws_iam_role.BsiBackup.name
+  role       = aws_iam_role.BsiBackup.*.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
 }
 
 resource "aws_iam_role_policy_attachment" "bsiaccess_extra" {
   count = length(var.additional_roles)
-  policy_arn = aws_iam_policy.BsiBackuppolicy.arn
+  policy_arn = aws_iam_policy.BsiBackuppolicy.*.arn
   role = var.additional_roles[count.index]
 }
 
@@ -82,14 +82,14 @@ resource "aws_iam_role_policy_attachment" "ec2ssm_extra" {
 }
 
 locals {
-  arns = concat(list(aws_iam_role.BsiBackup.arn),var.additional_roles)
+  arns = concat(list(aws_iam_role.BsiBackup.*.arn),var.additional_roles)
 }
 
 
 //  Lambda - windows
 data "template_file" "win-backup" {
   template = file("${path.module}/win-lambda/win_lambda.py")
-  vars {
+  vars = {
     PROFILE_ARN = join(",", local.arns)
   }
 }
@@ -151,7 +151,7 @@ data "archive_file" "linux-backup" {
 resource "aws_lambda_function" "linux-backup" {
   count            = var.include == "true" ? 1 : 0
   function_name    = "bsi-linux-backup"
-  role             = aws_iam_role.BsiBackup.arn
+  role             = aws_iam_role.BsiBackup.*.arn
   handler          = "linux-lambda.lambda_handler"
   runtime          = "python2.7"
   timeout          = 300
