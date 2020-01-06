@@ -104,7 +104,7 @@ data "archive_file" "win-backup" {
 resource "aws_lambda_function" "win-backup" {
   count            = var.include == "true" ? 1 : 0
   function_name    = "bsi-win-backup"
-  role             = aws_iam_role.BsiBackup.arn
+  role             = aws_iam_role.BsiBackup.*.arn
   handler          = "win_lambda.lambda_handler"
   runtime          = "python2.7"
   timeout          = 300
@@ -118,9 +118,9 @@ resource "aws_lambda_permission" "win" {
 
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.win-backup.function_name
+  function_name = aws_lambda_function.win-backup.*.function_name
   principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.win.arn
+  source_arn    = aws_cloudwatch_event_rule.win.*.arn
 }
 
 resource "aws_cloudwatch_event_rule" "win" {
@@ -134,9 +134,9 @@ resource "aws_cloudwatch_event_rule" "win" {
 resource "aws_cloudwatch_event_target" "win" {
   count = (var.run_at_expression != "" && var.include == "true") ? 1 : 0
 
-  rule      = aws_cloudwatch_event_rule.win.name
-  target_id = aws_lambda_function.win-backup.function_name
-  arn       = aws_lambda_function.win-backup.arn
+  rule      = aws_cloudwatch_event_rule.win.*.name
+  target_id = aws_lambda_function.win-backup.*.function_name
+  arn       = aws_lambda_function.win-backup.*.arn
 }
 
 
@@ -165,9 +165,9 @@ resource "aws_lambda_permission" "linux" {
 
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.linux-backup.function_name
+  function_name = aws_lambda_function.linux-backup.*.function_name
   principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.linux.arn
+  source_arn    = aws_cloudwatch_event_rule.linux.*.arn
 }
 
 resource "aws_cloudwatch_event_rule" "linux" {
@@ -181,7 +181,7 @@ resource "aws_cloudwatch_event_rule" "linux" {
 resource "aws_cloudwatch_event_target" "linux" {
   count = (var.run_at_expression != "" && var.include == "true") ? 1 : 0
 
-  rule      = aws_cloudwatch_event_rule.linux.name
-  target_id = aws_lambda_function.linux-backup.function_name
-  arn       = aws_lambda_function.linux-backup.arn
+  rule      = aws_cloudwatch_event_rule.linux.*.name
+  target_id = aws_lambda_function.linux-backup.*.function_name
+  arn       = aws_lambda_function.linux-backup.*.arn
 }
