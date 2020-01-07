@@ -1,7 +1,8 @@
 
 variable "include" {
   description = "Include in install.  If set to false related resources will not be installed."
-  default = "true"
+  default     = true
+  type        = bool
 }
 
 variable "additional_roles" {
