@@ -55,7 +55,7 @@ Example Scenario:  Multiple workspaces exist in a single AWS account.  The backu
 module "backup" {
   source            = "git@github.com:bluesentry/tf-module.backup.git?ref=v1.0.3"
   run_at_expression = "cron(00 03 ? * * *)"
-  include           = terraform.workspace == "dev" ? "true" : "false"
+  include           = terraform.workspace == "dev" ? true : false
   tags              = local.tags
 }
 ```
